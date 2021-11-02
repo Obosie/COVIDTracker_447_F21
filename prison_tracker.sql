@@ -28,7 +28,7 @@ Missing = NULLIF(@missing, '')
 
 DROP TABLE IF EXISTS historical_state_counts;
 
-/*
+
 CREATE TABLE historical_state_counts(
 `Date` DATE,
 State TEXT,
@@ -54,7 +54,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
-(@RConf, @SConf, @RDeaths, @SDeaths, @RTadmin, @RTest, @RActive, @SActive, @RInit, @SInit, @RComp, @SComp, @RVadmin, @SVadmin)
+(`Date`, @state, @RConf, @SConf, @RDeaths, @SDeaths, @RTadmin, @RTest, @RActive, @SActive, @RInit, @SInit, @RComp, @SComp, @RVadmin, @SVadmin)
 SET
 State = NULLIF(@state, ''),
 `Residents.Confirmed` = NULLIF(@RConf, ''),
@@ -72,7 +72,7 @@ State = NULLIF(@state, ''),
 `Residents.Vadmin` = NULLIF(@RVadmin, ''),
 `Staff.Vadmin` = NULLIF(@SVadmin, '')
 ;
-*/
+
 
 DROP TABLE IF EXISTS historical_state_jurisdiction_counts;
 
