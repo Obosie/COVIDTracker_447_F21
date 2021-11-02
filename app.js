@@ -32,10 +32,6 @@ function query_pull(date){
 }
 
 
-
-
-
-
 const app = express();
 var server = createServer(creds, app);
 
@@ -45,7 +41,7 @@ server.listen('3000', () => {
 });
 app.get('/', (req, result) => {
 
-    result.send("HTTPS Connection Established...");
+    result.send("HTTPS Connection Established.  Waiting for query...");
 });
 app.get('/get/:year-:month-:day', (req, result) => {
 
@@ -53,10 +49,22 @@ app.get('/get/:year-:month-:day', (req, result) => {
         let date = p.year + "-" + p.month + "-" + p.day;
         
         query_pull(date);
-        let json_out = JSON.parse(req_out);
+        let json_out; 
+        if(req_out != undefined){
+            
+            json_out = JSON.parse(req_out);
+            result.send("200 OK");
+            let rate = (json_out["Residents.Confirmed"]/json_out["Residents.Tested"]) * 100;
+
+            console.log("On " + date + ": Residents Positive = " + json_out["Residents.Confirmed"]);
+            console.log("On " + date + ": Residents Tested = " + json_out["Residents.Tested"]);
+            console.log("On " + date + ": Positivity Rate = ", rate);            
+        }else{
+
+            result.send("404 Entry Not Found")
+        }
         
-        result.send("200 OK");
-        console.log("On " + date + ": Residents Positive = " + json_out["Residents.Confirmed"]);
+        
 });
 
 
