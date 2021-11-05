@@ -1,6 +1,7 @@
 const { query } = require('express');
 const express = require('express');
-const http = require('https');
+const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const sql = require('mysql');
 const { createServer } = require('http');
@@ -11,13 +12,14 @@ const crt = fs.readFileSync(__dirname + "\\certs\\server.cert", {encoding:'utf-8
 var creds = {key: pkey, cert: crt};
 
 
-var req_out; 
 
-function query_pull(date){
+
+function query_pull(date,callback){
 
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
-    let retrieve = "SELECT * FROM historical_state_counts WHERE(State = 'California' AND Date = '" + date + "')";
+    //let join = "LEFT JOIN historical_state_counts AS hsc ON(hfc.State = hsc.State AND hfc.Date = hsc.Date)";
+    let retrieve = "SELECT * FROM historical_facility_counts AS hfc WHERE(State = 'California' AND Date = '" + date + "')";
     database.query(retrieve, (err,result) => {
  
         if(err){
@@ -25,46 +27,58 @@ function query_pull(date){
             throw err;
         }
 
-        var ret = JSON.stringify(result[0]);
+        callback(JSON.stringify(result));
+    });
+
     
-        req_out = ret;
-    })
 }
 
 
 const app = express();
-var server = createServer(creds, app);
+var http_server = http.createServer(app);
+// var https_server = https.createServer(creds, app);
 
-server.listen('3000', () => {
+http_server.listen('3000', () => {
     
-    console.log("Server started on port 3000");
+    console.log("HTTP Server started on port 3000");
 });
+
+// https_server.listen('3080', () => {
+
+//     console.log("HTTPS Server started on port 3080");
+// });
+
+
 app.get('/', (req, result) => {
 
-    result.send("HTTPS Connection Established.  Waiting for query...");
+    result.send("Connection Established.  Waiting for query...");
 });
-app.get('/get/:year-:month-:day', (req, result) => {
+app.get('/pull/:year-:month-:day', (req, result) => {
 
         let p = req.params;
+        var req_out = '';
+        if(isNaN(p.year) || isNaN(p.month) || isNaN(p.day)){
+            result.send("Invalid Date Contents!", 404)
+        }
+
         let date = p.year + "-" + p.month + "-" + p.day;
         
-        query_pull(date);
-        let json_out; 
-        if(req_out != undefined){
+        query_pull(date, (obj) => {
+
+             
+            if(obj != undefined){
             
-            json_out = JSON.parse(req_out);
-            result.send("200 OK");
-            let rate = (json_out["Residents.Confirmed"]/json_out["Residents.Tested"]) * 100;
+                json_out = JSON.parse(obj);
+                result.status(200).json(json_out);   
+                console.log("Data Sent to Client!");    
+            }else{
 
-            console.log("On " + date + ": Residents Positive = " + json_out["Residents.Confirmed"]);
-            console.log("On " + date + ": Residents Tested = " + json_out["Residents.Tested"]);
-            console.log("On " + date + ": Positivity Rate = ", rate);            
-        }else{
+                result.status(404).send("Lookup Failure!");
+                console.log("Query Failed!");
+            }
+        });
 
-            result.send("404 Entry Not Found")
-        }
-        
-        
+
 });
 
 
