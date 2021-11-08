@@ -1,15 +1,11 @@
 const { query } = require('express');
 const express = require('express');
 const http = require('http');
-const https = require('https');
-const fs = require('fs');
+const path = require('path');
 const sql = require('mysql');
 const { createServer } = require('http');
 
 
-const pkey = fs.readFileSync(__dirname + "\\certs\\server.key", {encoding:'utf-8'});
-const crt = fs.readFileSync(__dirname + "\\certs\\server.cert", {encoding:'utf-8'});
-var creds = {key: pkey, cert: crt};
 
 
 
@@ -19,7 +15,7 @@ function query_pull(date,callback){
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
     //let join = "LEFT JOIN historical_state_counts AS hsc ON(hfc.State = hsc.State AND hfc.Date = hsc.Date)";
-    let retrieve = "SELECT * FROM historical_facility_counts AS hfc WHERE(State = 'California' AND Date = '" + date + "')";
+    let retrieve = "SELECT * FROM us_counties AS usc WHERE(State = 'California' AND Date = '" + date + "')";
     database.query(retrieve, (err,result) => {
  
         if(err){
@@ -30,39 +26,36 @@ function query_pull(date,callback){
         callback(JSON.stringify(result));
     });
 
-    
 }
 
 
 const app = express();
+app.use(express.static(__dirname))
 var http_server = http.createServer(app);
-// var https_server = https.createServer(creds, app);
 
 http_server.listen('3000', () => {
     
     console.log("HTTP Server started on port 3000");
 });
 
-// https_server.listen('3080', () => {
-
-//     console.log("HTTPS Server started on port 3080");
-// });
-
 
 app.get('/', (req, result) => {
 
-    result.send("Connection Established.  Waiting for query...");
+    result.sendFile(path.join(__dirname + "/map.html"), (err) => {
+
+        if(err) throw err;
+        console.log("Connection Established. Map Displayed. Waiting for query...");
+    });
+    
 });
 app.get('/pull/:year-:month-:day', (req, result) => {
 
         let p = req.params;
-        var req_out = '';
         if(isNaN(p.year) || isNaN(p.month) || isNaN(p.day)){
             result.send("Invalid Date Contents!", 404)
         }
 
         let date = p.year + "-" + p.month + "-" + p.day;
-        
         query_pull(date, (obj) => {
 
              
@@ -80,9 +73,6 @@ app.get('/pull/:year-:month-:day', (req, result) => {
 
 
 });
-
-
-
 
 
 const database = sql.createConnection({
