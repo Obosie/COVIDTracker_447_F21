@@ -24,8 +24,15 @@
     <body>
 
         <div id="map"></div>
-        <script src="js/map.js" charset="utf-8"></script>
-        
+        <!-- <script src="js/map.js" charset="utf-8"></script> -->
+		<div id="userinput">
+		<!-- Form does a post action to the root, which is picked up in app.js -->
+			<form action="/" method="POST">
+				<label>Date: </label>
+				<input type="text" placeholder="date" name="userdate"><br><br> 
+			<button type ="submit">Submit</button>
+			</form>
+		</div>
     </body>
 
 
