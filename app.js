@@ -1,13 +1,17 @@
 const { query } = require('express');
 const express = require('express');
 const http = require('http');
-const path = require('path');
+const https = require('https');
+const fs = require('fs');
+var path = require("path");
 const sql = require('mysql');
 const { createServer } = require('http');
+var bodyParser = require('body-parser');
 
 
-
-
+const pkey = fs.readFileSync(__dirname + "\\certs\\server.key", {encoding:'utf-8'});
+const crt = fs.readFileSync(__dirname + "\\certs\\server.cert", {encoding:'utf-8'});
+var creds = {key: pkey, cert: crt};
 
 
 function query_pull(date,callback){
@@ -26,36 +30,42 @@ function query_pull(date,callback){
         callback(JSON.stringify(result));
     });
 
+    
 }
 
 
 const app = express();
-app.use(express.static(__dirname))
-var http_server = http.createServer(app);
+app.use(bodyParser.urlencoded({extended: false}));
+app.set('view engine', 'html');
+
+app.engine('html', require('ejs').renderFile);
+const http_server = http.createServer(app)
+// var https_server = https.createServer(creds, app);
 
 http_server.listen('3000', () => {
     
     console.log("HTTP Server started on port 3000");
 });
 
+// https_server.listen('3080', () => {
+
+//     console.log("HTTPS Server started on port 3080");
+// });
+
 
 app.get('/', (req, result) => {
-
-    result.sendFile(path.join(__dirname + "/map.html"), (err) => {
-
-        if(err) throw err;
-        console.log("Connection Established. Map Displayed. Waiting for query...");
-    });
-    
+	result.sendFile(path.join(__dirname,'map.html'));
 });
 app.get('/pull/:year-:month-:day', (req, result) => {
 
         let p = req.params;
+        var req_out = '';
         if(isNaN(p.year) || isNaN(p.month) || isNaN(p.day)){
             result.send("Invalid Date Contents!", 404)
         }
 
         let date = p.year + "-" + p.month + "-" + p.day;
+        
         query_pull(date, (obj) => {
 
              
@@ -74,6 +84,20 @@ app.get('/pull/:year-:month-:day', (req, result) => {
 
 });
 
+app.post('/', function(req,result){
+	var user_date = req.body.userdate;
+	let retrieve = "SELECT * FROM historical_state_counts AS hfc WHERE(State = 'California' AND Date = '" + user_date + "')"
+	database.query(retrieve, function(err,row){    
+      if(err){
+        result.send("Error encountered while displaying");
+        return console.error(err.message);
+      }
+	  sql_result = JSON.stringify(row);
+	  result.render(path.join(__dirname,'mapresults.html'), {results:sql_result});
+	  console.log("Entry displayed successfully");
+  });
+});
+  
 
 const database = sql.createConnection({
 
