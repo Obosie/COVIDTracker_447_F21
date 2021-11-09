@@ -1,17 +1,11 @@
 const { query } = require('express');
 const express = require('express');
 const http = require('http');
-const https = require('https');
-const fs = require('fs');
 var path = require("path");
 const sql = require('mysql');
 const { createServer } = require('http');
 var bodyParser = require('body-parser');
 
-
-const pkey = fs.readFileSync(__dirname + "\\certs\\server.key", {encoding:'utf-8'});
-const crt = fs.readFileSync(__dirname + "\\certs\\server.cert", {encoding:'utf-8'});
-var creds = {key: pkey, cert: crt};
 
 
 function query_pull(date,callback){
@@ -40,18 +34,11 @@ app.set('view engine', 'html');
 
 app.engine('html', require('ejs').renderFile);
 const http_server = http.createServer(app)
-// var https_server = https.createServer(creds, app);
 
 http_server.listen('3000', () => {
     
     console.log("HTTP Server started on port 3000");
 });
-
-// https_server.listen('3080', () => {
-
-//     console.log("HTTPS Server started on port 3080");
-// });
-
 
 app.get('/', (req, result) => {
 	result.sendFile(path.join(__dirname,'map.html'));
