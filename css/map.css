@@ -3,7 +3,28 @@ html, body{
     height: 100%;
 }
 
-#map{
-    
+.container{
+    width: 100%;
     height: 100%;
+    position: relative;
+}
+
+#map{
+    z-index: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+#userinput{
+    height: 90px;
+    z-index: 100;
+    background-color: rgba(81, 214, 231, 0.085);
+    backdrop-filter: blur(5px);
+}
+
+
+#user_in{
+    font-family: Tahoma, sans-serif;
+    float: right;
 }
