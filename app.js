@@ -15,14 +15,18 @@ function query_pull(date,callback){
 
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
-    let retrieve = "SELECT DISTINCT * FROM us_counties AS ucs JOIN historical_facility_counts as hfc ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = " + date + ")";
-    database.query(retrieve, (err,result) => {
+    let retrieve = "SELECT DISTINCT * FROM us_counties AS ucs JOIN historical_facility_counts as hfc ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
+    var rtest = "SELECT * FROM us_counties WHERE(State = 'Maryland' AND Date = " + date + ")";
+    var htest = "SELECT * FROM historical_facility_counts AS hfc WHERE(hfc.State = 'California' AND hfc.Date = '" + date + "')";
+    
+    
+    database.query(rtest, (err,result) => {
  
         if(err){
             console.log("Error retrieving object\nObject does not exist");
             throw err;
         }
-
+        console.log(result);
         callback(JSON.stringify(result));
     });
 
@@ -32,7 +36,8 @@ function query_pull(date,callback){
 
 const app = express();
 app.use(express.static(__dirname));
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 app.set('view engine', 'html');
 app.engine('html', ejs.renderFile);
 
@@ -45,20 +50,21 @@ http_server.listen('3000', () => {
 
 
 app.get('/', (req, result) => {
+    console.log("Map rendered");
 	result.sendFile(path.join(__dirname,'map.html'));
 });
 
 
-app.post('/', function(req,result){
-	var user_date = req.body.userdate;
+app.post('/get-data', (req,res) => {
+
+	var user_date = req.body.udate;
+    console.log(user_date);
 	// let retrieve = "SELECT * FROM historical_state_counts AS hfc WHERE(State = 'California' AND Date = '" + user_date + "')";
-    var json_out = "";
     query_pull(user_date, (ret) => {
 
         if(ret != undefined){
-            json_out = JSON.parse(ret);
-            //result.status(200).send(json_out);
-            // result.status(200).render(path.join(__dirname,'mapresults.html'), {results:json_out});
+
+            res.status(200).json(JSON.parse(ret));
             console.log("Data Sent to Client!"); 
         }else{
             console.log("Query Failed!");
@@ -66,7 +72,7 @@ app.post('/', function(req,result){
     });
 
 });
-  
+module.exports = app;
 
 const database = sql.createConnection({
 
@@ -80,4 +86,3 @@ database.connect((err) => {
     if(err) throw err;
     console.log("Connected to COVID19 mySQL...");
 });
-
