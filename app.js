@@ -20,7 +20,7 @@ function query_pull(date,callback){
     var htest = "SELECT * FROM historical_facility_counts AS hfc WHERE(hfc.State = 'California' AND hfc.Date = '" + date + "')";
     
     
-    database.query(rtest, (err,result) => {
+    database.query(retrieve, (err,result) => {
  
         if(err){
             console.log("Error retrieving object\nObject does not exist");
