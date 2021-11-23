@@ -15,7 +15,7 @@ function query_pull(date,callback){
 
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
-    let retrieve = "SELECT DISTINCT * FROM us_counties AS ucs JOIN historical_facility_counts as hfc ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
+    let retrieve = "SELECT DISTINCT * FROM historical_facility_counts as hfc RIGHT JOIN us_counties AS ucs ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
     var rtest = "SELECT * FROM us_counties WHERE(State = 'Maryland' AND Date = " + date + ")";
     var htest = "SELECT * FROM historical_facility_counts AS hfc WHERE(hfc.State = 'California' AND hfc.Date = '" + date + "')";
     
