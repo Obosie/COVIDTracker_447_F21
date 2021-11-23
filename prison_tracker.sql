@@ -169,3 +169,22 @@ Longitude = NULLIF(@Lon, ''),
 `County.FIPS` = NULLIF(@CountyFIPS, ''),
 `ICE.Field.Office` = NULLIF(@ICE, '')
 ;
+
+
+CREATE TABLE IF NOT EXISTS `covid_19_prison_tracker`.`us_counties` (
+  `Date` DATE NULL DEFAULT NULL,
+  `County` TEXT NULL DEFAULT NULL,
+  `State` TEXT NULL DEFAULT NULL,
+  `fips` INT NULL DEFAULT NULL,
+  `Cases` INT NULL DEFAULT NULL,
+  `Deaths` INT NULL DEFAULT NULL);
+  
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/historical-data/us_counties.csv' #Change Absolute directory to fit local machine
+INTO TABLE us_counties 
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(@Date, County, State, fips, Cases, Deaths)
+SET `Date` = STR_TO_DATE(@Date, '%m/%d/%Y');
+
