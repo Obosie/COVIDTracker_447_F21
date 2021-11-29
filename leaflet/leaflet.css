@@ -207,6 +207,7 @@
 
 .leaflet-interactive {
 	cursor: pointer;
+	stroke-width: 0;
 	}
 .leaflet-grab {
 	cursor: -webkit-grab;
