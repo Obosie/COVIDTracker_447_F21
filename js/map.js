@@ -1,5 +1,9 @@
 
 
+var markers = [];
+
+    
+
 function getRange(data) {
 	minCases = Number.MAX_SAFE_INTEGER;
 	maxCases = Number.MIN_SAFE_INTEGER;
@@ -19,7 +23,7 @@ function getRange(data) {
 		}}
 	}
 	return [minCases, maxCases]
-  }
+}
 
 
 // Gets color value based on where a case value stands between the minimum and maximum Number
@@ -36,11 +40,20 @@ function getColor(minCases,maxCases,cases){
 	return colors[colorNum];
 }
 
-function update(data){
-	
-	caseRange = getRange(data);
 
-	console.log(caseRange);
+
+function update(data){
+
+    for(let i = 0; i < markers.length; i++){
+
+        map.removeLayer(markers[i]);
+        markers.pop();
+    }
+    markers.length = 0;
+    
+
+    caseRange = getRange(data);
+
 
     for(let e = 0; e < data.length; e++){
 
@@ -53,20 +66,26 @@ function update(data){
             let name = obj.Name;
             let lat = obj.Latitude;
             let long = obj.Longitude;
+            let cases = obj['Residents.Confirmed'] + obj['Staff.Confirmed'];
 
-            var circle = L.circle([lat,long], {
+
+            var circle = new L.circle([lat,long], {
                 color: 'grey',
                 fillColor: getColor(caseRange[0],caseRange[1],obj.Cases),
-                fillOpacity: 1,
-                radius: 5000
-            }).addTo(map);
-
-			var popupInfo = '<p>Facility Name: ' + obj.Name + '<br />Cases: ' + obj.Cases + '</p>';
-
-            circle.bindPopup(popupInfo);
+                fillOpacity: 0.62,
+                radius: 20000
+            }).bindPopup(name + "  |  Cases: " + cases);
+            
+            markers.push(circle);
+            circle.addTo(map);
         }
     }
+
 }
+
+
+
+
 
 
 
@@ -77,7 +96,6 @@ $(document).ready(function() {
         e.preventDefault();
         
         var fdata = $('#userdate').val();
-        var action = e.currentTarget.action;
         
         $.ajax({
             type: "POST",
