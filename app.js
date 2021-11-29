@@ -15,10 +15,7 @@ function query_pull(date,callback){
 
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
-    let retrieve = "SELECT DISTINCT * FROM historical_facility_counts as hfc RIGHT JOIN us_counties AS ucs ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
-    var rtest = "SELECT * FROM us_counties WHERE(State = 'Maryland' AND Date = " + date + ")";
-    var htest = "SELECT * FROM historical_facility_counts AS hfc WHERE(hfc.State = 'California' AND hfc.Date = '" + date + "')";
-    
+    let retrieve = "SELECT * FROM historical_facility_counts as hfc RIGHT JOIN us_counties AS ucs ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
     
     database.query(retrieve, (err,result) => {
  
@@ -26,7 +23,7 @@ function query_pull(date,callback){
             console.log("Error retrieving object\nObject does not exist");
             throw err;
         }
-        console.log(result);
+        console.log("Query Finished!")
         callback(JSON.stringify(result));
     });
 
@@ -41,25 +38,27 @@ app.use(bodyParser.json());
 app.set('view engine', 'html');
 app.engine('html', ejs.renderFile);
 
+
+/*--------Server Connection Setup--------*/
 const http_server = http.createServer(app);
 http_server.listen('3000', () => {
-    
     console.log("HTTP Server started on port 3000");
 });
 
 
 
+/*--------Server Functionality Routes--------*/
 app.get('/', (req, result) => {
     console.log("Map rendered");
 	result.sendFile(path.join(__dirname,'map.html'));
 });
 
 
+
 app.post('/get-data', (req,res) => {
 
 	var user_date = req.body.udate;
-    console.log(user_date);
-	// let retrieve = "SELECT * FROM historical_state_counts AS hfc WHERE(State = 'California' AND Date = '" + user_date + "')";
+
     query_pull(user_date, (ret) => {
 
         if(ret != undefined){
@@ -74,6 +73,9 @@ app.post('/get-data', (req,res) => {
 });
 module.exports = app;
 
+
+
+/*--------Database Connection Setup--------*/
 const database = sql.createConnection({
 
     host: 'localhost',
