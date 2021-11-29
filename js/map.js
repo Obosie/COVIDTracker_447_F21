@@ -1,8 +1,46 @@
 
 
+function getRange(data) {
+	minCases = Number.MAX_SAFE_INTEGER;
+	maxCases = Number.MIN_SAFE_INTEGER;
+	console.log(data.length)
+	for(let e = 0; e < data.length; e++){
 
+
+        let obj = data[e];
+		if(obj.Address == null && obj.Jurisdiction == null){
+			console.log("Object at ",e," is county information");
+        }else{
+			if (obj.Cases < minCases) {
+				minCases = obj.Cases;
+			}
+			if (obj.Cases > maxCases) {
+				maxCases = obj.Cases;
+		}}
+	}
+	return [minCases, maxCases]
+  }
+
+
+// Gets color value based on where a case value stands between the minimum and maximum Number
+// of cases for a given date
+function getColor(minCases,maxCases,cases){
+	colors = ['#4477aa', '#5177af', '#5f76b3', '#6e75b6', '#7d74b7', '#8c72b7', '#9b70b5', '#a96db2', '#b76bad', '#c468a7', '#cf669f', '#d96497', '#e2648d', '#e96482', '#ee6677'];
+	range = maxCases - minCases; 
+	casesAdj = cases - minCases; 
+	var percentageOfRange = casesAdj/range;
+	colorNum = Math.floor(percentageOfRange * 15);
+	if (colorNum == 15) {
+		colorNum = 14;
+	}
+	return colors[colorNum];
+}
 
 function update(data){
+	
+	caseRange = getRange(data);
+
+	console.log(caseRange);
 
     for(let e = 0; e < data.length; e++){
 
@@ -18,19 +56,17 @@ function update(data){
 
             var circle = L.circle([lat,long], {
                 color: 'grey',
-                fillColor: '#03b1fc',
-                fillOpacity: 0.4,
+                fillColor: getColor(caseRange[0],caseRange[1],obj.Cases),
+                fillOpacity: 1,
                 radius: 5000
             }).addTo(map);
 
-            circle.bindPopup(name);
+			var popupInfo = '<p>Facility Name: ' + obj.Name + '<br />Cases: ' + obj.Cases + '</p>';
+
+            circle.bindPopup(popupInfo);
         }
     }
 }
-
-
-
-
 
 
 
