@@ -15,9 +15,8 @@ function query_pull(date,callback){
 
     // -------- Retrieval Query --------
     console.log("Attempting retrieval query...");
-    let retrieve = "SELECT * FROM historical_facility_counts as hfc RIGHT JOIN us_counties AS ucs ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`) WHERE(ucs.State = 'California' AND ucs.Date = '" + date + "')";
-    
-    database.query(retrieve, (err,result) => {
+    let prejoined = "SELECT * FROM ucshfc WHERE(State = 'California' AND Date = '" + date + "')";
+    database.query(prejoined, (err,result) => {
  
         if(err){
             console.log("Error retrieving object\nObject does not exist");
@@ -52,7 +51,6 @@ app.get('/', (req, result) => {
     console.log("Map rendered");
 	result.sendFile(path.join(__dirname,'map.html'));
 });
-
 
 
 app.post('/get-data', (req,res) => {
