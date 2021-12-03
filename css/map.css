@@ -3,28 +3,35 @@ html, body{
     height: 100%;
 }
 
-/* .container{
-    width: 100%;
-    height: 100%;
-
-} */
-
 #map{
-
-    height: 90%;
+    height: 92%;
     width: 100%;
-
 }
 
-#userinput{
-    
+
+
+#banner{
     height: 10%;
-    background-color: rgba(81, 214, 231, 0.085);
-    backdrop-filter: blur(3px);
+    width: 100%;
+    background-color: darkgray;
+    padding-top: 15px;
 }
 
 
 #user_in{
     font-family: Tahoma, sans-serif;
     float: right;
+    padding-right: 20px;
+}
+
+#logo{
+    float: left;
+    width: 80px;
+    height: 80px;
+}
+
+#title{
+    float: left;
+    font-family: Tahoma, sans-serif;
+    background-color: darkgray;
 }
