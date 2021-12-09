@@ -188,3 +188,16 @@ IGNORE 1 ROWS
 (@Date, County, State, fips, Cases, Deaths)
 SET `Date` = STR_TO_DATE(@Date, '%m/%d/%Y');
 
+
+	CREATE TABLE IF NOT EXISTS `covid_19_prison_tracker`.`ucshfc` AS(SELECT DISTINCT 
+                                                                   ucs.*, 
+                                                                   hfc.Jurisdiction, 
+                                                                   hfc.Address,
+                                                                   hfc.`County.FIPS`,
+                                                                   hfc.Longitude,
+                                                                   hfc.Latitude,
+                                                                   hfc.Name,
+                                                                   hfc.`Residents.Confirmed`,
+                                                                   hfc.`Staff.Confirmed` 
+                                                                   FROM us_counties AS ucs LEFT JOIN historical_facility_counts as hfc ON(ucs.fips = hfc.`County.FIPS` AND ucs.`Date` = hfc.`Date` AND ucs.`State` = hfc.`State`));
+
